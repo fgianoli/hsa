@@ -169,10 +169,10 @@ class HSA(QgsProcessingAlgorithm):
         return results
 
     def name(self):
-        return 'HSA'
+        return 'modello'
 
     def displayName(self):
-        return 'HSA'
+        return 'modello'
 
     def group(self):
         return ''

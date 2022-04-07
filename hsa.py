@@ -35,7 +35,7 @@ import sys
 import inspect
 
 from qgis.core import QgsProcessingAlgorithm, QgsApplication
-from .hsa_provider import HSAProvider
+from .hsa_provider import SlopeChannel
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 
@@ -50,7 +50,7 @@ class HSAPlugin(object):
 
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
-        self.provider = HSAProvider()
+        self.provider = SlopeChannel()
         QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):

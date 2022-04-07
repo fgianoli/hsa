@@ -30,16 +30,43 @@ __copyright__ = '(C) 2022 by Salvatore Fiandaca, Antonio Cotroneo, Federico Gian
 
 __revision__ = '$Format:%H$'
 
-from qgis.core import QgsProcessingProvider
-from .hsa_algorithm import HSA
+import os
+import glob
+import shutil
+
+from qgis.core import (
+    Qgis,
+    QgsProcessingProvider,
+    QgsApplication,
+    QgsMessageLog,
+    QgsProcessingModelAlgorithm
+)
+from processing.modeler.ModelerUtils import ModelerUtils
+from processing.core.ProcessingConfig import (
+    ProcessingConfig,
+    Setting
+)
+from qgis.utils import (
+    iface,
+    unloadPlugin
+)
+from PyQt5.QtGui import (
+    QIcon
+)
+from PyQt5.QtWidgets import (
+    QMessageBox
+)
+from processing.tools.system import isWindows
+##from .hsa_algorithm import HSA
 
 
-class HSAProvider(QgsProcessingProvider):
+class SlopeChannel(QgsProcessingProvider):
 
     def __init__(self):
         """
         Default constructor.
         """
+        self.modelsPath = os.path.join(os.path.dirname(__file__), 'model')
         QgsProcessingProvider.__init__(self)
 
     def unload(self):
@@ -49,13 +76,48 @@ class HSAProvider(QgsProcessingProvider):
         """
         pass
 
-    def loadAlgorithms(self):
-        """
-        Loads all algorithms belonging to this provider.
-        """
-        self.addAlgorithm(HSA())
-        # add additional algorithms here
-        # self.addAlgorithm(MyOtherAlgorithm())
+    def load(self):
+            # check dependencies in lazy way because need that all
+            # plugin dependency have to be loaded before to check
+
+            if QgsApplication.processingRegistry().providerById('model'):
+                self.loadModels()
+            else:
+                # lazy load of models waiting QGIS initialization. This would avoid
+                # to load modelas when model provider is still not available in processing
+                iface.initializationCompleted.connect(self.loadModels)
+
+            return True
+
+    def loadModels(self):
+            '''Register models present in models folder of the plugin.'''
+            try:
+                iface.initializationCompleted.disconnect(self.loadModels)
+            except:
+                pass
+
+            modelsFiles = glob.glob(os.path.join(self.modelsPath, '*.model3'))
+
+            for modelFileName in modelsFiles:
+                alg = QgsProcessingModelAlgorithm()
+                if not alg.fromFile(modelFileName):
+                    QgsMessageLog.logMessage(self.tr('Not well formed model: {}'.format(modelFileName)), self.messageTag, Qgis.Warning)
+                    continue
+
+                destFilename = os.path.join(ModelerUtils.modelsFolders()[0], os.path.basename(modelFileName))
+                try:
+                    if os.path.exists(destFilename):
+                        os.remove(destFilename)
+
+                    if isWindows():
+                        shutil.copyfile(modelFileName, destFilename)
+                    else:
+                        os.symlink(modelFileName, destFilename)
+                except Exception as ex:
+                    QgsMessageLog.logMessage(self.tr('Failed to install model: {} - {}'.format(modelFileName, str(ex))), self.messageTag, Qgis.Warning)
+                    continue
+
+            QgsApplication.processingRegistry().providerById('model').refreshAlgorithms()
 
     def id(self):
         """
@@ -63,7 +125,7 @@ class HSAProvider(QgsProcessingProvider):
         string should be a unique, short, character only string, eg "qgis" or
         "gdal". This string should not be localised.
         """
-        return 'hsa'
+        return 'SlopeChannel'
 
     def name(self):
         """
@@ -72,7 +134,7 @@ class HSAProvider(QgsProcessingProvider):
 
         This string should be short (e.g. "Lastools") and localised.
         """
-        return self.tr('hsa')
+        return self.tr('SlopeChannel')
 
     def icon(self):
         """
