@@ -12,8 +12,8 @@ email=gianoli.federico@gmail.com
 
 about=This plugin add to the model toolbox a geoprocess to compute the Hydraulic Average Slope
 
-tracker=https://github.com/fgianoli/hsa/issues
-repository=https://github.com/fgianoli/hsa
+tracker=https://github.com/fgianoli/slope_channel/issues
+repository=https://github.com/fgianoli/slope_channel
 # End of mandatory metadata
 
 # Recommended items:
@@ -23,7 +23,7 @@ hasProcessingProvider=yes
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=Hydraulics, Pendenza Media Idraulica,
+tags=Hydraulics, Pendenza Media Idraulica, slope channel
 
 homepage=https://github.com/fgianoli/hsa
 category=Analysis
