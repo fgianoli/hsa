@@ -10,7 +10,7 @@ version=0.1
 author=Salvatore Fiandaca, Antonio Cotroneo, Federico Gianoli
 email=gianoli.federico@gmail.com
 
-about=This plugin add to the processing toolbox a geoprocess to compute the Hydraulic Average Slope
+about=This plugin add to the model toolbox a geoprocess to compute the Hydraulic Average Slope
 
 tracker=https://github.com/fgianoli/hsa/issues
 repository=https://github.com/fgianoli/hsa
